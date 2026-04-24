@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bicycle - Quiz & Exam | Class 1 English</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --border: #ddd;
+            --text: #2c3e50;
+            --shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            --radius: 14px;
+            --transition: 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .header h1 {
+            font-size: clamp(1.2rem, 4vw, 1.9rem);
+            margin-bottom: 0.2rem;
+        }
+        .header .subtitle {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            opacity: 0.85;
+        }
+        .sound-toggle {
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: #fff;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .sound-toggle:hover {
+            background: rgba(255,255,255,0.35);
+        }
+        .sound-toggle.muted {
+            background: rgba(255,255,255,0.1);
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        /* ── SCOREBOARD ── */
+        .scoreboard {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 1rem 1.2rem;
+            margin: 1rem auto;
+            max-width: 750px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 90px;
+            z-index: 90;
+            gap: 0.6rem;
+        }
+        .scoreboard .score-item {
+            text-align: center;
+            flex: 1 1 80px;
+        }
+        .scoreboard .score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .scoreboard .score-label {
+            font-size: 0.75rem;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .scoreboard button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background var(--transition);
+        }
+        .scoreboard button:hover {
+            background: #c0392b;
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* ── EXAM SECTION ── */
+        .exam-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            margin-bottom: 1.4rem;
+            padding: 1.3rem 1.2rem;
+            box-shadow: var(--shadow);
+            scroll-margin-top: 180px;
+            border-left: 5px solid var(--accent);
+        }
+        .exam-section h2 {
+            font-size: clamp(1rem, 3.5vw, 1.25rem);
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .exam-section h2 .icon {
+            font-size: 1.5rem;
+        }
+        .exam-section h2 .badge {
+            font-size: 0.7rem;
+            background: var(--accent);
+            color: #fff;
+            padding: 0.2rem 0.7rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* ── QUESTION BLOCK ── */
+        .question-block {
+            background: #f9fafb;
+            border: 1px solid #e8ecf1;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        .question-block.correct-flash {
+            border-color: var(--correct) !important;
+            background: #eafaf1 !important;
+            animation: pulseGreen 0.6s ease;
+        }
+        .question-block.wrong-flash {
+            border-color: var(--wrong) !important;
+            background: #fdedec !important;
+            animation: shake 0.5s ease;
+        }
+        .question-block .q-text {
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        }
+        .question-block .q-num {
+            display: inline-block;
+            background: var(--secondary);
+            color: #fff;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-size: 0.8rem;
+            margin-right: 0.4rem;
+            font-weight: 700;
+        }
+
+        @keyframes pulseGreen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* ── OPTIONS ── */
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .option-btn {
+            flex: 1 1 120px;
+            padding: 0.55rem 0.9rem;
+            border: 2px solid #dde;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-align: left;
+            transition: all var(--transition);
+            color: var(--text);
+            font-weight: 500;
+        }
+        .option-btn:hover {
+            border-color: var(--accent);
+            background: #fff5f5;
+            transform: translateY(-1px);
+        }
+        .option-btn:active {
+            transform: scale(0.97);
+        }
+        .option-btn.selected {
+            border-color: var(--accent);
+            background: #ffeaea;
+            font-weight: 700;
+        }
+        .option-btn.correct {
+            border-color: var(--correct) !important;
+            background: #d5f5e3 !important;
+            color: #1a6b3c !important;
+            animation: popIn 0.3s ease;
+        }
+        .option-btn.wrong {
+            border-color: var(--wrong) !important;
+            background: #fadbd8 !important;
+            color: #922b21 !important;
+            animation: popIn 0.3s ease;
+        }
+        .option-btn:disabled {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* ── FEEDBACK ── */
+        .feedback {
+            margin-top: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: none;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+        }
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .feedback.correct-fb {
+            color: #1a6b3c;
+            background: #d5f5e3;
+        }
+        .feedback.wrong-fb {
+            color: #922b21;
+            background: #fadbd8;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── INPUT & TEXTAREA ── */
+        .input-answer {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid #dde;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border var(--transition);
+        }
+        .input-answer:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .check-btn {
+            margin-top: 0.5rem;
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .check-btn:hover {
+            background: #1a1a2e;
+            transform: translateY(-1px);
+        }
+        .check-btn:active {
+            transform: scale(0.95);
+        }
+        .check-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── MATCHING ── */
+        .match-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .match-row select {
+            padding: 0.4rem;
+            border-radius: 6px;
+            border: 2px solid #dde;
+            font-size: 0.85rem;
+        }
+
+        /* ── TRUE/FALSE ── */
+        .tf-options {
+            display: flex;
+            gap: 1rem;
+        }
+        .tf-btn {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid #dde;
+            border-radius: 25px;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+        .tf-btn:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .tf-btn:active {
+            transform: scale(0.95);
+        }
+        .tf-btn.selected-true {
+            border-color: var(--correct);
+            background: #d5f5e3;
+        }
+        .tf-btn.selected-false {
+            border-color: var(--wrong);
+            background: #fadbd8;
+        }
+
+        /* ── RESULTS ── */
+        .results-panel {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1rem auto;
+            max-width: 750px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        .results-panel.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        .results-panel .big-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .results-panel .grade {
+            font-size: 1.3rem;
+            margin: 0.5rem 0;
+            font-weight: 700;
+        }
+
+        /* ── CONFETTI ── */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 2.5s ease-out forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .exam-section {
+                padding: 1rem 0.7rem;
+                border-left-width: 3px;
+            }
+            .option-btn {
+                flex: 1 1 100%;
+                font-size: 0.8rem;
+            }
+            .scoreboard {
+                flex-direction: column;
+                gap: 0.3rem;
+                top: 80px;
+            }
+            .scoreboard .score-value {
+                font-size: 1.5rem;
+            }
+            .scoreboard button {
+                width: 100%;
+            }
+            .match-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media print {
+            .scoreboard,
+            .check-btn,
+            .option-btn,
+            .sound-toggle {
+                display: none !important;
+            }
+            .exam-section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            body {
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <h1>📝 My Bicycle – Quiz & Exam</h1>
+        <p class="subtitle">Chapter 1 · Class 1 English · Mixed Odia–English</p>
+        <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle sound effects">
+            🔊 Sound On
+        </button>
+    </header>
+
+    <!-- SCOREBOARD -->
+    <div class="scoreboard" id="scoreboard">
+        <div class="score-item">
+            <div class="score-value" id="correctCount">0</div>
+            <div class="score-label">✅ Correct</div>
+        </div>
+        <div class="score-item">
+            <div class="score-value" id="wrongCount">0</div>
+            <div class="score-label">❌ Wrong</div>
+        </div>
+        <div class="score-item">
+            <div class="score-value" id="totalAttempted">0</div>
+            <div class="score-label">📝 Attempted</div>
+        </div>
+        <div class="score-item">
+            <div class="score-value" id="totalQuestions">50</div>
+            <div class="score-label">📋 Total</div>
+        </div>
+        <button onclick="showResults()">📊 Show Results</button>
+        <button onclick="resetAll()">🔄 Reset All</button>
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div class="results-panel" id="resultsPanel">
+        <h2>🎯 Your Result</h2>
+        <div class="big-score" id="finalScore">0 / 50</div>
+        <div class="grade" id="finalGrade"></div>
+        <p id="finalMessage" style="margin-top:0.5rem;"></p>
+        <button onclick="resetAll()" style="margin-top:1rem;background:var(--accent);color:#fff;border:none;padding:0.6rem 1.5rem;border-radius:25px;cursor:pointer;font-weight:600;">🔄 Try Again</button>
+    </div>
+
+    <!-- CONFETTI CONTAINER -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="container">
+
+        <!-- ═══════════ SECTION A: MULTIPLE CHOICE ═══════════ -->
+        <section class="exam-section" id="secA">
+            <h2><span class="icon">🔤</span> Section A: Multiple Choice <span class="badge">10 Q × 2 Marks</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Choose the correct answer. Click an option to lock your choice.</p>
+            <div id="mcqContainer"></div>
+        </section>
+
+        <!-- ═══════════ SECTION B: TRUE / FALSE ═══════════ -->
+        <section class="exam-section" id="secB">
+            <h2><span class="icon">✅</span> Section B: True or False <span class="badge">10 Q × 1 Mark</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Click True or False for each statement.</p>
+            <div id="tfContainer"></div>
+        </section>
+
+        <!-- ═══════════ SECTION C: FILL IN THE BLANKS ═══════════ -->
+        <section class="exam-section" id="secC">
+            <h2><span class="icon">✍️</span> Section C: Fill in the Blanks <span class="badge">8 Q × 2 Marks</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Type the missing word. Case doesn't matter.</p>
+            <div id="fibContainer"></div>
+        </section>
+
+        <!-- ═══════════ SECTION D: MATCH THE FOLLOWING ═══════════ -->
+        <section class="exam-section" id="secD">
+            <h2><span class="icon">🔗</span> Section D: Match the Following <span class="badge">6 Q × 2 Marks</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Match English words with Odia meanings. Select the correct letter.</p>
+            <div id="matchContainer"></div>
+        </section>
+
+        <!-- ═══════════ SECTION E: ONE WORD ANSWERS ═══════════ -->
+        <section class="exam-section" id="secE">
+            <h2><span class="icon">💬</span> Section E: One Word Answers <span class="badge">6 Q × 2 Marks</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Answer in one word only.</p>
+            <div id="oneWordContainer"></div>
+        </section>
+
+        <!-- ═══════════ SECTION F: TWIST ZONE ═══════════ -->
+        <section class="exam-section" id="secF">
+            <h2><span class="icon">🌀</span> Section F: Twist Zone <span class="badge">5 Q × 2 Marks</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Think deeply! Write short answers. Manual check recommended.</p>
+            <div id="twistContainer"></div>
+        </section>
+
+        <!-- ═══════════ SECTION G: MEMORY EYE ═══════════ -->
+        <section class="exam-section" id="secG">
+            <h2><span class="icon">🧠</span> Section G: Memory Eye Test <span class="badge">5 Q × 2 Marks</span></h2>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:0.8rem;">Visual memory from the poem picture in your textbook.</p>
+            <div id="memoryContainer"></div>
+        </section>
+
+        <!-- ═══════════ SUBMIT ALL ═══════════ -->
+        <div style="text-align:center;margin:1.5rem 0;">
+            <button onclick="showResults()" style="background:var(--accent);color:#fff;border:none;padding:0.8rem 2rem;border-radius:30px;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(233,69,96,0.3);">
+                📊 Show Final Results
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>📚 My Bicycle – Quiz & Exam Format | Class 1 English | Mobile Responsive | 🔊 Sound Effects</p>
+    </footer>
+
+    <script>
+        // ──────────────────────────────────────
+        // SOUND ENGINE (Web Audio API - No files needed!)
+        // ──────────────────────────────────────
+        const SoundEngine = {
+            audioCtx: null,
+            soundEnabled: true,
+
+            init() {
+                try {
+                    this.audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Web Audio API not supported');
+                    this.soundEnabled = false;
+                }
+            },
+
+            // Resume audio context on user interaction (required by browsers)
+            resume() {
+                if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            },
+
+            playCorrect() {
+                if (!this.soundEnabled || !this.audioCtx) return;
+                this.resume();
+                const ctx = this.audioCtx;
+                const now = ctx.currentTime;
+
+                // Pleasant ascending two-note chime
+                const notes = [523.25, 659.25]; // C5, E5
+                notes.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.12);
+                    gain.gain.setValueAtTime(0.3, now + i * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + i * 0.12);
+                    osc.stop(now + i * 0.12 + 0.4);
+                });
+            },
+
+            playWrong() {
+                if (!this.soundEnabled || !this.audioCtx) return;
+                this.resume();
+                const ctx = this.audioCtx;
+                const now = ctx.currentTime;
+
+                // Gentle descending buzz
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(120, now + 0.35);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            },
+
+            playClick() {
+                if (!this.soundEnabled || !this.audioCtx) return;
+                this.resume();
+                const ctx = this.audioCtx;
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            },
+
+            playCelebration() {
+                if (!this.soundEnabled || !this.audioCtx) return;
+                this.resume();
+                const ctx = this.audioCtx;
+                const now = ctx.currentTime;
+                const notes = [523.25, 587.33, 659.25, 698.46, 783.99]; // C5 D5 E5 F5 G5
+                notes.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.1);
+                    gain.gain.setValueAtTime(0.25, now + i * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + i * 0.1);
+                    osc.stop(now + i * 0.1 + 0.3);
+                });
+            }
+        };
+
+        // Initialize sound engine
+        SoundEngine.init();
+
+        // Toggle sound
+        function toggleSound() {
+            SoundEngine.soundEnabled = !SoundEngine.soundEnabled;
+            const btn = document.getElementById('soundToggle');
+            if (SoundEngine.soundEnabled) {
+                btn.textContent = '🔊 Sound On';
+                btn.classList.remove('muted');
+                SoundEngine.playClick();
+            } else {
+                btn.textContent = '🔇 Sound Off';
+                btn.classList.add('muted');
+            }
+        }
+
+        // ──────────────────────────────────────
+        // CONFETTI
+        // ──────────────────────────────────────
+        function spawnConfetti(count = 60) {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#e94560', '#2ecc71', '#3498db', '#f39c12', '#9b59b6', '#1abc9c', '#e74c3c', '#f1c40f'];
+
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.top = -(Math.random() * 60 + 10) + 'px';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.width = (Math.random() * 10 + 6) + 'px';
+                piece.style.height = (Math.random() * 10 + 6) + 'px';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                piece.style.animationDelay = Math.random() * 1.5 + 's';
+                container.appendChild(piece);
+
+                // Clean up after animation
+                setTimeout(() => {
+                    if (piece.parentNode) piece.parentNode.removeChild(piece);
+                }, 4000);
+            }
+        }
+
+        // ──────────────────────────────────────
+        // GLOBAL STATE
+        // ──────────────────────────────────────
+        const state = {
+            correct: 0,
+            wrong: 0,
+            attempted: 0,
+            total: 50,
+            answered: {}
+        };
+
+        function updateScoreboard() {
+            document.getElementById('correctCount').textContent = state.correct;
+            document.getElementById('wrongCount').textContent = state.wrong;
+            document.getElementById('totalAttempted').textContent = state.attempted;
+        }
+
+        function markAnswered(questionId, isCorrect) {
+            // Resume audio context on user interaction
+            SoundEngine.resume();
+
+            if (state.answered[questionId] !== undefined) {
+                if (state.answered[questionId] === true && !isCorrect) {
+                    state.correct--;
+                    state.wrong++;
+                } else if (state.answered[questionId] === false && isCorrect) {
+                    state.wrong--;
+                    state.correct++;
+                    state.attempted--;
+                } else {
+                    updateScoreboard();
+                    return;
+                }
+            } else {
+                state.attempted++;
+                if (isCorrect) {
+                    state.correct++;
+                    SoundEngine.playCorrect();
+                } else {
+                    state.wrong++;
+                    SoundEngine.playWrong();
+                }
+            }
+            state.answered[questionId] = isCorrect;
+            updateScoreboard();
+        }
+
+        function flashBlock(block, isCorrect) {
+            block.classList.remove('correct-flash', 'wrong-flash');
+            void block.offsetWidth;
+            block.classList.add(isCorrect ? 'correct-flash' : 'wrong-flash');
+            setTimeout(() => block.classList.remove('correct-flash', 'wrong-flash'), 1500);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION A: MULTIPLE CHOICE
+        // ──────────────────────────────────────
+        const mcqs = [
+            { q: "What is the poem about?", opts: ["A car", "A bicycle", "A bus", "A train"], ans: 1 },
+            { q: "What colour is the seat?", opts: ["Red", "Black", "Blue", "Green"], ans: 2 },
+            { q: "What colour are the tyres and pedals?", opts: ["Blue", "White", "Red", "Black"], ans: 3 },
+            { q: "What does the bicycle need to move?", opts: ["Water", "Oil", "Air", "Petrol"], ans: 2 },
+            { q: "The word 'happily' shows the child is:", opts: ["Sad", "Angry", "Happy", "Tired"], ans: 2 },
+            { q: "Which word rhymes with 'black'?", opts: ["Blue", "Track", "Seat", "Slow"], ans: 1 },
+            { q: "The bicycle is sometimes fast and sometimes:", opts: ["Quick", "Rapid", "Slow", "Stop"], ans: 2 },
+            { q: "What does the child put on before riding?", opts: ["Shoes", "Helmet", "Cap", "Gloves"], ans: 1 },
+            { q: "Where does the child go happily?", opts: ["School", "Home", "Everywhere", "Park"], ans: 2 },
+            { q: "The bell sound is generally like:", opts: ["Ding-dong", "Tring-tring", "Tick-tock", "Boom-boom"], ans: 1 }
+        ];
+
+        function buildMCQs() {
+            const container = document.getElementById('mcqContainer');
+            container.innerHTML = '';
+            mcqs.forEach((mcq, i) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.id = `mcqBlock${i}`;
+                block.innerHTML = `
+                    <p class="q-text"><span class="q-num">${i+1}</span> ${mcq.q}</p>
+                    <div class="options" id="mcqOpts${i}"></div>
+                    <div class="feedback" id="mcqFb${i}"></div>
+                `;
+                container.appendChild(block);
+
+                const optsDiv = document.getElementById(`mcqOpts${i}`);
+                mcq.opts.forEach((opt, j) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    btn.addEventListener('click', () => {
+                        SoundEngine.playClick();
+                        handleMCQClick(i, j, block);
+                    });
+                    optsDiv.appendChild(btn);
+                });
+            });
+        }
+
+        function handleMCQClick(qIndex, optIndex, block) {
+            const qId = `mcq${qIndex}`;
+            const buttons = block.querySelectorAll('.option-btn');
+            if (state.answered[qId] === true && optIndex === mcqs[qIndex].ans) return;
+            if (buttons[0].disabled && state.answered[qId] !== undefined) return;
+
+            const isCorrect = optIndex === mcqs[qIndex].ans;
+            const fbDiv = block.querySelector('.feedback');
+
+            buttons.forEach(b => b.disabled = true);
+            buttons.forEach((b, j) => {
+                if (j === mcqs[qIndex].ans) b.classList.add('correct');
+                if (j === optIndex && !isCorrect) b.classList.add('wrong');
+                if (j === optIndex) b.classList.add('selected');
+            });
+
+            fbDiv.className = 'feedback show';
+            if (isCorrect) {
+                fbDiv.classList.add('correct-fb');
+                fbDiv.textContent = '✅ Correct! Well done.';
+            } else {
+                fbDiv.classList.add('wrong-fb');
+                fbDiv.textContent = `❌ Wrong! Correct answer: ${mcqs[qIndex].opts[mcqs[qIndex].ans]}`;
+            }
+
+            flashBlock(block, isCorrect);
+            markAnswered(qId, isCorrect);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION B: TRUE / FALSE
+        // ──────────────────────────────────────
+        const tfQuestions = [
+            { q: "The seat is red.", ans: false },
+            { q: "The pedals are black.", ans: true },
+            { q: "The bicycle needs water to move.", ans: false },
+            { q: "The child wears a helmet while riding.", ans: true },
+            { q: "The poem tells us the colour of the helmet.", ans: false },
+            { q: "The word 'happily' shows the child is sad.", ans: false },
+            { q: "The tyres are blue.", ans: false },
+            { q: "The bicycle is always on track.", ans: true },
+            { q: "The poem has three stanzas.", ans: false },
+            { q: "'Air' and 'everywhere' are rhyming words.", ans: true }
+        ];
+
+        function buildTF() {
+            const container = document.getElementById('tfContainer');
+            container.innerHTML = '';
+            tfQuestions.forEach((tf, i) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.id = `tfBlock${i}`;
+                block.innerHTML = `
+                    <p class="q-text"><span class="q-num">${i+1}</span> ${tf.q}</p>
+                    <div class="tf-options">
+                        <button class="tf-btn" id="tfTrue${i}">✅ True</button>
+                        <button class="tf-btn" id="tfFalse${i}">❌ False</button>
+                    </div>
+                    <div class="feedback" id="tfFb${i}"></div>
+                `;
+                container.appendChild(block);
+
+                document.getElementById(`tfTrue${i}`).addEventListener('click', () => {
+                    SoundEngine.playClick();
+                    handleTFClick(i, true, block);
+                });
+                document.getElementById(`tfFalse${i}`).addEventListener('click', () => {
+                    SoundEngine.playClick();
+                    handleTFClick(i, false, block);
+                });
+            });
+        }
+
+        function handleTFClick(qIndex, chosen, block) {
+            const qId = `tf${qIndex}`;
+            if (state.answered[qId] !== undefined) return;
+
+            const isCorrect = chosen === tfQuestions[qIndex].ans;
+            const fbDiv = block.querySelector('.feedback');
+            const trueBtn = block.querySelector(`#tfTrue${qIndex}`);
+            const falseBtn = block.querySelector(`#tfFalse${qIndex}`);
+
+            trueBtn.disabled = true;
+            falseBtn.disabled = true;
+
+            if (tfQuestions[qIndex].ans) {
+                trueBtn.classList.add('selected-true');
+                if (!chosen) falseBtn.classList.add('selected-false');
+            } else {
+                falseBtn.classList.add('selected-false');
+                if (chosen) trueBtn.classList.add('selected-false');
+            }
+
+            fbDiv.className = 'feedback show';
+            if (isCorrect) {
+                fbDiv.classList.add('correct-fb');
+                fbDiv.textContent = '✅ Correct!';
+            } else {
+                fbDiv.classList.add('wrong-fb');
+                fbDiv.textContent = `❌ Wrong! The correct answer is ${tfQuestions[qIndex].ans ? 'True' : 'False'}.`;
+            }
+
+            flashBlock(block, isCorrect);
+            markAnswered(qId, isCorrect);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION C: FILL IN THE BLANKS
+        // ──────────────────────────────────────
+        const fibQuestions = [
+            { prompt: "The _______________ is blue in colour.", ans: "seat" },
+            { prompt: "The tyres and _______________ are black.", ans: "pedals" },
+            { prompt: "Sometimes fast, sometimes _______________.", ans: "slow" },
+            { prompt: "But my bicycle is always on _______________.", ans: "track" },
+            { prompt: "To keep my bicycle _______________.", ans: "moving" },
+            { prompt: "All I need is some _______________.", ans: "air" },
+            { prompt: "I put on my little _______________.", ans: "helmet" },
+            { prompt: "And go _______________ everywhere.", ans: "happily" }
+        ];
+
+        function buildFIB() {
+            const container = document.getElementById('fibContainer');
+            container.innerHTML = '';
+            fibQuestions.forEach((fib, i) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.id = `fibBlock${i}`;
+                block.innerHTML = `
+                    <p class="q-text"><span class="q-num">${i+1}</span> ${fib.prompt}</p>
+                    <input type="text" class="input-answer" id="fibInput${i}" placeholder="Type your answer...">
+                    <button class="check-btn" id="fibCheck${i}">✅ Check</button>
+                    <div class="feedback" id="fibFb${i}"></div>
+                `;
+                container.appendChild(block);
+
+                document.getElementById(`fibCheck${i}`).addEventListener('click', () => {
+                    SoundEngine.playClick();
+                    handleFIBClick(i, block);
+                });
+                document.getElementById(`fibInput${i}`).addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        SoundEngine.playClick();
+                        handleFIBClick(i, block);
+                    }
+                });
+            });
+        }
+
+        function handleFIBClick(qIndex, block) {
+            const qId = `fib${qIndex}`;
+            if (state.answered[qId] !== undefined) return;
+
+            const input = block.querySelector(`#fibInput${qIndex}`);
+            const userAns = input.value.trim().toLowerCase();
+            const correctAns = fibQuestions[qIndex].ans.toLowerCase();
+            const fbDiv = block.querySelector('.feedback');
+            const checkBtn = block.querySelector(`#fibCheck${qIndex}`);
+
+            if (userAns === '') return;
+
+            const isCorrect = userAns === correctAns ||
+                (correctAns === 'helmet' && userAns.includes('helmet')) ||
+                (correctAns === 'happily' && userAns.includes('happy'));
+
+            input.disabled = true;
+            checkBtn.disabled = true;
+
+            fbDiv.className = 'feedback show';
+            if (isCorrect) {
+                fbDiv.classList.add('correct-fb');
+                fbDiv.textContent = '✅ Correct!';
+                input.style.borderColor = 'var(--correct)';
+            } else {
+                fbDiv.classList.add('wrong-fb');
+                fbDiv.textContent = `❌ Not quite. Correct answer: "${fibQuestions[qIndex].ans}"`;
+                input.style.borderColor = 'var(--wrong)';
+            }
+
+            flashBlock(block, isCorrect);
+            markAnswered(qId, isCorrect);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION D: MATCH THE FOLLOWING
+        // ──────────────────────────────────────
+        const matchPairs = [
+            { word: "pedal", letter: "c" },
+            { word: "sometimes", letter: "a" },
+            { word: "track", letter: "d" },
+            { word: "put on", letter: "e" },
+            { word: "everywhere", letter: "b" },
+            { word: "helmet", letter: "f" }
+        ];
+
+        function buildMatch() {
+            const container = document.getElementById('matchContainer');
+            container.innerHTML = '';
+            const block = document.createElement('div');
+            block.className = 'question-block';
+            block.id = 'matchBlock';
+
+            let html = '<p style="font-size:0.85rem;margin-bottom:0.6rem;">Match each English word with its Odia meaning:</p>';
+            html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">';
+            html += '<div><strong>English</strong></div><div><strong>Odia</strong></div>';
+            matchPairs.forEach((pair, i) => {
+                html += `<div>${i+1}. ${pair.word}</div>`;
+                html += `<div><select class="input-answer" id="matchSelect${i}" style="padding:0.3rem;">
+                    <option value="">-- Select --</option>
+                    <option value="a">a) ବେଳେବେଳେ (belebele)</option>
+                    <option value="b">b) ସବୁଆଡ଼େ (sabuade)</option>
+                    <option value="c">c) ପାଦଥିବା (padathiba)</option>
+                    <option value="d">d) ରାସ୍ତା / ପଥ (rasta/patha)</option>
+                    <option value="e">e) ପିନ୍ଧିବା (pindhiba)</option>
+                    <option value="f">f) ମୁଣ୍ଡ ସୁରକ୍ଷା ଟୋପି (surakhya topi)</option>
+                </select></div>`;
+            });
+            html += '</div>';
+            html += '<button class="check-btn" id="matchCheckAll" style="margin-top:0.6rem;">✅ Check All Matches</button>';
+            html += '<div class="feedback" id="matchFb"></div>';
+            block.innerHTML = html;
+            container.appendChild(block);
+
+            document.getElementById('matchCheckAll').addEventListener('click', () => {
+                SoundEngine.playClick();
+                handleMatchCheck();
+            });
+        }
+
+        function handleMatchCheck() {
+            const qId = 'matchAll';
+            if (state.answered[qId] !== undefined) return;
+
+            let correctCount = 0;
+            matchPairs.forEach((pair, i) => {
+                const select = document.getElementById(`matchSelect${i}`);
+                if (select.value === pair.letter) {
+                    correctCount++;
+                    select.style.borderColor = 'var(--correct)';
+                } else {
+                    select.style.borderColor = 'var(--wrong)';
+                }
+                select.disabled = true;
+            });
+
+            const fbDiv = document.getElementById('matchFb');
+            fbDiv.className = 'feedback show';
+            const isPerfect = correctCount === matchPairs.length;
+            if (isPerfect) {
+                fbDiv.classList.add('correct-fb');
+                fbDiv.textContent = `✅ Perfect! All ${correctCount}/${matchPairs.length} correct.`;
+            } else {
+                fbDiv.classList.add('wrong-fb');
+                fbDiv.textContent = `❌ ${correctCount}/${matchPairs.length} correct. Check the highlighted ones.`;
+            }
+            document.getElementById('matchCheckAll').disabled = true;
+
+            const block = document.getElementById('matchBlock');
+            flashBlock(block, isPerfect);
+            markAnswered(qId, isPerfect);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION E: ONE WORD ANSWERS
+        // ──────────────────────────────────────
+        const oneWordQs = [
+            { q: "Colour of the seat?", ans: "blue" },
+            { q: "Tyres and pedals colour?", ans: "black" },
+            { q: "What does the bicycle need to move?", ans: "air" },
+            { q: "The child goes ________ everywhere. (feeling word)", ans: "happily" },
+            { q: "One word that rhymes with 'black' from the poem.", ans: "track" },
+            { q: "What does the child put on before riding?", ans: "helmet" }
+        ];
+
+        function buildOneWord() {
+            const container = document.getElementById('oneWordContainer');
+            container.innerHTML = '';
+            oneWordQs.forEach((q, i) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.id = `oneWordBlock${i}`;
+                block.innerHTML = `
+                    <p class="q-text"><span class="q-num">${i+1}</span> ${q.q}</p>
+                    <input type="text" class="input-answer" id="oneWordInput${i}" placeholder="Your answer...">
+                    <button class="check-btn" id="oneWordCheck${i}">✅ Check</button>
+                    <div class="feedback" id="oneWordFb${i}"></div>
+                `;
+                container.appendChild(block);
+
+                document.getElementById(`oneWordCheck${i}`).addEventListener('click', () => {
+                    SoundEngine.playClick();
+                    handleOneWordClick(i, block);
+                });
+                document.getElementById(`oneWordInput${i}`).addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        SoundEngine.playClick();
+                        handleOneWordClick(i, block);
+                    }
+                });
+            });
+        }
+
+        function handleOneWordClick(qIndex, block) {
+            const qId = `oneWord${qIndex}`;
+            if (state.answered[qId] !== undefined) return;
+
+            const input = block.querySelector(`#oneWordInput${qIndex}`);
+            const userAns = input.value.trim().toLowerCase();
+            const correctAns = oneWordQs[qIndex].ans.toLowerCase();
+            const fbDiv = block.querySelector('.feedback');
+            const checkBtn = block.querySelector(`#oneWordCheck${qIndex}`);
+
+            if (userAns === '') return;
+
+            const isCorrect = userAns === correctAns ||
+                (correctAns === 'happily' && userAns === 'happy') ||
+                (correctAns === 'helmet' && userAns.includes('helmet'));
+
+            input.disabled = true;
+            checkBtn.disabled = true;
+
+            fbDiv.className = 'feedback show';
+            if (isCorrect) {
+                fbDiv.classList.add('correct-fb');
+                fbDiv.textContent = '✅ Correct!';
+                input.style.borderColor = 'var(--correct)';
+            } else {
+                fbDiv.classList.add('wrong-fb');
+                fbDiv.textContent = `❌ Correct answer: "${oneWordQs[qIndex].ans}"`;
+                input.style.borderColor = 'var(--wrong)';
+            }
+
+            flashBlock(block, isCorrect);
+            markAnswered(qId, isCorrect);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION F: TWIST ZONE
+        // ──────────────────────────────────────
+        const twistQs = [
+            { q: "If all the air escapes from the tyre, what happens? (Write 1-2 sentences)", hint: "Think about a flat tyre." },
+            { q: "What colour do you imagine the helmet is? Why?", hint: "Use your imagination!" },
+            { q: "Write your own one line about the bell sound of a bicycle.", hint: "Example: The bell goes..." },
+            { q: "If there is no road, only a big field – is the bicycle still 'on track'? Why?", hint: "What does 'track' mean?" },
+            { q: "Write the opposite of 'fast' and 'happy' from the poem.", hint: "Look in stanza 1 and 2." }
+        ];
+
+        function buildTwist() {
+            const container = document.getElementById('twistContainer');
+            container.innerHTML = '';
+            twistQs.forEach((q, i) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.id = `twistBlock${i}`;
+                block.innerHTML = `
+                    <p class="q-text"><span class="q-num">${i+1}</span> ${q.q}</p>
+                    <textarea class="input-answer" id="twistInput${i}" rows="2" placeholder="Write your answer..."></textarea>
+                    <p style="font-size:0.75rem;color:#888;margin-top:0.2rem;">💡 Hint: ${q.hint}</p>
+                    <button class="check-btn" id="twistCheck${i}">📝 Mark as Attempted</button>
+                    <div class="feedback" id="twistFb${i}"></div>
+                `;
+                container.appendChild(block);
+
+                document.getElementById(`twistCheck${i}`).addEventListener('click', () => {
+                    SoundEngine.playClick();
+                    handleTwistClick(i, block);
+                });
+            });
+        }
+
+        function handleTwistClick(qIndex, block) {
+            const qId = `twist${qIndex}`;
+            if (state.answered[qId] !== undefined) return;
+
+            const input = block.querySelector(`#twistInput${qIndex}`);
+            const userAns = input.value.trim();
+            const fbDiv = block.querySelector('.feedback');
+            const checkBtn = block.querySelector(`#twistCheck${qIndex}`);
+
+            if (userAns === '') {
+                fbDiv.className = 'feedback show wrong-fb';
+                fbDiv.textContent = '⚠️ Please write something before submitting.';
+                return;
+            }
+
+            input.disabled = true;
+            checkBtn.disabled = true;
+
+            fbDiv.className = 'feedback show correct-fb';
+            fbDiv.textContent = '✅ Answer recorded! (Teacher will review)';
+            input.style.borderColor = 'var(--correct)';
+
+            flashBlock(block, true);
+            markAnswered(qId, true);
+        }
+
+        // ──────────────────────────────────────
+        // SECTION G: MEMORY EYE TEST
+        // ──────────────────────────────────────
+        const memoryQs = [
+            { q: "Which stanza tells about the seat and tyres?", opts: ["Stanza 1", "Stanza 2", "Neither"], ans: 0 },
+            { q: "Which stanza tells about moving the bicycle?", opts: ["Stanza 1", "Stanza 2", "Neither"], ans: 1 },
+            { q: "Is the bell mentioned in the poem?", opts: ["Yes, in Stanza 1", "Yes, in Stanza 2", "No, not in the poem"],
+                ans: 2 },
+            { q: "Which word appears in Stanza 2: 'track' or 'helmet'?", opts: ["track", "helmet", "Both"], ans: 1 },
+            { q: "The phrase 'on track' appears in which stanza?", opts: ["Stanza 1", "Stanza 2", "Nowhere"], ans: 0 }
+        ];
+
+        function buildMemory() {
+            const container = document.getElementById('memoryContainer');
+            container.innerHTML = '';
+            memoryQs.forEach((mq, i) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+                block.id = `memoryBlock${i}`;
+                block.innerHTML = `
+                    <p class="q-text"><span class="q-num">${i+1}</span> ${mq.q}</p>
+                    <div class="options" id="memoryOpts${i}"></div>
+                    <div class="feedback" id="memoryFb${i}"></div>
+                `;
+                container.appendChild(block);
+
+                const optsDiv = document.getElementById(`memoryOpts${i}`);
+                mq.opts.forEach((opt, j) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = opt;
+                    btn.addEventListener('click', () => {
+                        SoundEngine.playClick();
+                        handleMemoryClick(i, j, block);
+                    });
+                    optsDiv.appendChild(btn);
+                });
+            });
+        }
+
+        function handleMemoryClick(qIndex, optIndex, block) {
+            const qId = `memory${qIndex}`;
+            if (state.answered[qId] !== undefined) return;
+
+            const isCorrect = optIndex === memoryQs[qIndex].ans;
+            const buttons = block.querySelectorAll('.option-btn');
+            const fbDiv = block.querySelector('.feedback');
+
+            buttons.forEach(b => b.disabled = true);
+            buttons.forEach((b, j) => {
+                if (j === memoryQs[qIndex].ans) b.classList.add('correct');
+                if (j === optIndex && !isCorrect) b.classList.add('wrong');
+                if (j === optIndex) b.classList.add('selected');
+            });
+
+            fbDiv.className = 'feedback show';
+            if (isCorrect) {
+                fbDiv.classList.add('correct-fb');
+                fbDiv.textContent = '✅ Correct! Great memory!';
+            } else {
+                fbDiv.classList.add('wrong-fb');
+                fbDiv.textContent = `❌ Wrong! Correct: ${memoryQs[qIndex].opts[memoryQs[qIndex].ans]}`;
+            }
+
+            flashBlock(block, isCorrect);
+            markAnswered(qId, isCorrect);
+        }
+
+        // ──────────────────────────────────────
+        // RESULTS
+        // ──────────────────────────────────────
+        function showResults() {
+            const panel = document.getElementById('resultsPanel');
+            panel.classList.add('show');
+            document.getElementById('finalScore').textContent = `${state.correct} / ${state.total}`;
+
+            const pct = (state.correct / state.total) * 100;
+            let grade, message;
+            if (pct >= 90) {
+                grade = '🌟 A+ (Excellent!)';
+                message = 'ବହୁତ ଭଲ! You know the poem perfectly!';
+                SoundEngine.playCelebration();
+                spawnConfetti(80);
+            } else if (pct >= 75) {
+                grade = '🎉 A (Very Good)';
+                message = 'Great job! Just a little more practice.';
+                SoundEngine.playCelebration();
+                spawnConfetti(40);
+            } else if (pct >= 60) {
+                grade = '👍 B (Good)';
+                message = 'Good effort! Review the poem again.';
+                SoundEngine.playClick();
+            } else if (pct >= 40) {
+                grade = '📖 C (Needs Practice)';
+                message = 'Keep trying! Read the poem aloud.';
+            } else {
+                grade = '💪 D (Keep Trying!)';
+                message = 'Don\'t give up! Practice makes perfect.';
+            }
+
+            document.getElementById('finalGrade').textContent = grade;
+            document.getElementById('finalMessage').textContent = message;
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetAll() {
+            state.correct = 0;
+            state.wrong = 0;
+            state.attempted = 0;
+            state.answered = {};
+            updateScoreboard();
+            document.getElementById('resultsPanel').classList.remove('show');
+            document.getElementById('confettiContainer').innerHTML = '';
+
+            buildMCQs();
+            buildTF();
+            buildFIB();
+            buildMatch();
+            buildOneWord();
+            buildTwist();
+            buildMemory();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ──────────────────────────────────────
+        // INIT
+        // ──────────────────────────────────────
+        function init() {
+            document.getElementById('totalQuestions').textContent = state.total;
+            buildMCQs();
+            buildTF();
+            buildFIB();
+            buildMatch();
+            buildOneWord();
+            buildTwist();
+            buildMemory();
+            updateScoreboard();
+
+            // Resume audio context on first user interaction
+            document.addEventListener('click', () => SoundEngine.resume(), { once: true });
+            document.addEventListener('touchstart', () => SoundEngine.resume(), { once: true });
+            document.addEventListener('keydown', () => SoundEngine.resume(), { once: true });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
